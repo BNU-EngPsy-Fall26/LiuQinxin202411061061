@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>信号检测论 · 交互式实验室 | 工程心理学</title>
+<meta name="theme-color" content="#24292E">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='15' fill='%2324292E'/><text x='50' y='70' font-size='52' text-anchor='middle' fill='%2373C8B8' font-family='serif' font-weight='bold'>S</text></svg>">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ===================== 顶栏 ===================== -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand" id="btn-home">
+      <span class="brand-mark">SDT</span>
+      <span class="brand-text">信号检测论 · 交互式实验室</span>
+    </div>
+    <div class="topbar-actions" id="topbar-actions">
+      <span id="whoami" class="whoami">游客模式</span>
+      <button class="btn-mini" id="btn-dash">教师后台</button>
+      <button class="btn-mini ghost" id="btn-logout">退出登录</button>
+    </div>
+  </div>
+</header>
+
+<!-- ===================== 1. 登录 ===================== -->
+<section id="screen-login" class="screen active">
+  <div class="hero">
+    <h1>信号检测论 · 交互式实验室</h1>
+    <div class="sub">Signal Detection Theory Interactive Lab</div>
+  </div>
+
+  <div class="login-wrap">
+    <div class="card login-card">
+      <h2>同学登录</h2>
+      <p class="muted">输入学号和姓名，成绩将计入班级 ROC 对比图。</p>
+      <label class="field"><span>学号</span><input id="in-sid" type="text" placeholder="例如 2026110101" autocomplete="off"></label>
+      <label class="field"><span>姓名</span><input id="in-name" type="text" placeholder="例如 张三" autocomplete="off"></label>
+      <div class="err" id="login-err"></div>
+      <button class="btn-primary" id="btn-login">开始实验 →</button>
+      <button class="btn-text" id="btn-guest">暂不登录（游客模式）</button>
+      <p class="muted tiny">成绩保存在本机浏览器中，不会上传到任何服务器。</p>
+    </div>
+
+    <div class="card intro-card">
+      <h3>玩一玩信号检测论</h3>
+      <p>你将扮演四个不同职业的人，在不确定的噪音环境中做判断：</p>
+      <ul class="role-list">
+        <li><b>🍄 采蘑菇</b>　从一片蘑菇里挑出有毒的那些</li>
+        <li><b>🏺 鉴假员</b>　预展上分清是真品还是赝品</li>
+        <li><b>🐦 观鸟</b>　从枝叶交错的树冠里辨认出真正的鸟</li>
+        <li><b>🧸 质检员</b>　判断流水线上的手办有没有不符合质量要求</li>
+      </ul>
+      <p>玩完之后，我们再来看看你的数据告诉了你什么。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 2. 选择角色 ===================== -->
+<section id="screen-select" class="screen">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>第一步：选择一个角色</h2>
+      <p class="muted">每个角色走一轮判断，完成后会看到自己的混淆矩阵。</p>
+    </div>
+
+    <div class="card settings">
+      <div class="setting">
+        <label>难度 d′</label>
+        <div class="range-row">
+          <span class="range-end">困难 (0.5)</span>
+          <input type="range" id="sel-d" min="0.5" max="3.5" step="0.1" value="1.8">
+          <span class="range-end">简单 (3.5)</span>
+          <span class="val-badge" id="sel-d-val">1.8</span>
+        </div>
+        <p class="muted tiny"><span id="sel-d-hint"></span>　d′ 越小，信号与噪音越重叠，越难判断。</p>
+      </div>
+      <div class="setting two-col">
+        <div>
+          <label>试次数</label>
+          <div class="radio-row">
+            <label class="radio"><input type="radio" name="sel-n" value="20" checked><span>20 次（约 3 分钟）</span></label>
+            <label class="radio"><input type="radio" name="sel-n" value="100"><span>100 次（约 15 分钟，d′ 更稳）</span></label>
+          </div>
+        </div>
+        <div>
+          <label>逐试次反馈</label>
+          <label class="check"><input type="checkbox" id="sel-fb"><span>每次判断后显示对错（默认关闭）</span></label>
+        </div>
+      </div>
+      <div class="setting">
+        <label>图片呈现时长</label>
+        <div class="radio-row row-3">
+          <label class="radio"><input type="radio" name="sel-stim" value="1500"><span>1.5 秒</span></label>
+          <label class="radio"><input type="radio" name="sel-stim" value="3000" checked><span>3 秒（推荐）</span></label>
+          <label class="radio"><input type="radio" name="sel-stim" value="6000"><span>6 秒</span></label>
+          <label class="radio"><input type="radio" name="sel-stim" value="0"><span>不限时</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="game-cards" id="game-cards"><!-- JS 生成 --></div>
+
+    <p class="center muted"><a href="#" id="to-lab-link">已经玩过了？直接进概念实验室 →</a></p>
+  </div>
+</section>
+
+<!-- ===================== 3. 游戏 ===================== -->
+<section id="screen-game" class="screen">
+  <div class="wrap game-wrap">
+    <div class="game-head">
+      <div>
+        <h2 id="g-role">角色</h2>
+        <div class="muted" id="g-sub"></div>
+      </div>
+      <div class="game-status">
+        <span class="badge" id="g-progress">第 1 / 20 次</span>
+        <span class="badge ghost" id="g-stim"></span>
+        <span class="badge ghost" id="g-tally"></span>
+        <button class="badge ghost mute-btn" id="btn-mute" style="display:none">🔊 碎裂声</button>
+      </div>
+    </div>
+
+    <div class="scene-wrap">
+      <canvas id="gameCanvas" class="scene"></canvas>
+      <div class="flash" id="flash"></div>
+      <div class="stim-bar off" id="stimBar"><i></i></div>
+    </div>
+
+    <div class="intro-overlay hide" id="introOverlay">
+      <div class="intro-box">
+        <h3 id="introTitle"></h3>
+        <div id="introBody"></div>
+        <button class="btn-primary" id="btn-start">开始 5 次练习 →</button>
+      </div>
+    </div>
+
+    <div class="intro-overlay hide" id="readyOverlay">
+      <div class="intro-box">
+        <h3 id="readyTitle"></h3>
+        <div id="readyBody"></div>
+        <button class="btn-primary" id="btn-real">开始正式实验 →</button>
+      </div>
+    </div>
+
+    <div class="guide">
+      <div class="guide-label">参考图鉴</div>
+      <div class="guide-stack">
+        <canvas id="guideCanvas" class="guide-canvas"></canvas>
+        <div class="guide-caps">
+          <span id="guideCapA"></span><span id="guideCapB"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="answers">
+      <button class="ans-btn ans-yes" id="btn-yes">有信号</button>
+      <button class="ans-btn ans-no" id="btn-no">无信号</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 4. 结果 ===================== -->
+<section id="screen-result" class="screen">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">你的检测成绩</div>
+      <h2 id="r-title">结果</h2>
+      <p class="muted" id="r-sub"></p>
+    </div>
+
+    <div class="result-grid">
+      <div class="card">
+        <h3>你的混淆矩阵</h3>
+        <p class="muted tiny">这就是你刚才那些判断的结果统计。</p>
+        <table class="cm">
+          <thead>
+            <tr><th></th><th>实际：有信号</th><th>实际：无信号</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>你说「有」</th>
+              <td class="cell hit"><b id="cm-h">H = 0</b><span id="cm-hn"></span></td>
+              <td class="cell fa"><b id="cm-fa">FA = 0</b><span id="cm-fan"></span></td>
+            </tr>
+            <tr>
+              <th>你说「无」</th>
+              <td class="cell miss"><b id="cm-m">M = 0</b><span id="cm-mn"></span></td>
+              <td class="cell cr"><b id="cm-cr">CR = 0</b><span id="cm-crn"></span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>SDT 指标</h3>
+        <div class="metrics">
+          <div class="metric"><div class="m-k">P(H) 击中率</div><div class="m-v" id="m-ph">—</div></div>
+          <div class="metric"><div class="m-k">P(FA) 误报率</div><div class="m-v" id="m-pfa">—</div></div>
+          <div class="metric hl"><div class="m-k">d′ 敏感性</div><div class="m-v" id="m-d">—</div></div>
+          <div class="metric hl"><div class="m-k">c 判定标准</div><div class="m-v" id="m-c">—</div></div>
+          <div class="metric"><div class="m-k">β 似然比标准</div><div class="m-v" id="m-beta">—</div></div>
+          <div class="metric"><div class="m-k">A′ 非参数敏感性</div><div class="m-v" id="m-ap">—</div></div>
+          <div class="metric"><div class="m-k">准确率</div><div class="m-v" id="m-acc">—</div></div>
+          <div class="metric"><div class="m-k">d′ = z(H) − z(FA)</div><div class="m-v tinyv">c = −[z(H)+z(FA)]/2</div></div>
+        </div>
+        <div class="opt-box" id="r-opt"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>思考：为什么光看「准确率」不够？</h3>
+      <p class="muted">同样的准确率，可能是完全不同的策略。看看下面两种典型同学，再对照你自己的数据：</p>
+      <table class="cmp">
+        <thead>
+          <tr><th></th><th>P(H)</th><th>P(FA)</th><th>d′</th><th>c</th><th>准确率</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>同学A（谨慎型）</td><td id="cmp-a-ph">0.60</td><td id="cmp-a-pfa">0.10</td><td id="cmp-a-d">~1.8</td><td id="cmp-a-c">+0.5</td><td id="cmp-a-acc">75%</td></tr>
+          <tr><td>同学B（宽松型）</td><td id="cmp-b-ph">0.90</td><td id="cmp-b-pfa">0.40</td><td id="cmp-b-d">~1.8</td><td id="cmp-b-c">−0.5</td><td id="cmp-b-acc">75%</td></tr>
+          <tr class="you"><td><b>你</b></td><td id="cmp-you-ph">—</td><td id="cmp-you-pfa">—</td><td id="cmp-you-d">—</td><td id="cmp-you-c">—</td><td id="cmp-you-acc">—</td></tr>
+        </tbody>
+      </table>
+      <p class="insight" id="r-key"></p>
+    </div>
+
+    <div class="center actions">
+      <button class="btn-secondary" id="btn-other">← 换一个角色</button>
+      <button class="btn-secondary" id="btn-again">再玩一次</button>
+      <button class="btn-primary" id="btn-tolab">进入概念实验室验证 →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 5. 概念实验室 ===================== -->
+<section id="screen-lab" class="screen">
+  <div class="wrap wide">
+    <div class="section-head">
+      <h2>概念实验室</h2>
+      <p class="muted">现在你来当实验者：拖动滑块，观察 d′、判定标准 c、先验概率和奖惩如何改变混淆矩阵与 ROC 曲线。</p>
+    </div>
+
+    <div class="lab-tabs">
+      <button class="lab-tab active" data-tab="dist">两个分布</button>
+      <button class="lab-tab" data-tab="roc">ROC 曲线</button>
+      <button class="lab-tab" data-tab="payoff">标准与奖惩</button>
+      <button class="lab-tab" data-tab="ml">AI / 机器学习</button>
+      <button class="lab-tab" data-tab="vig">警觉模拟</button>
+    </div>
+
+    <!-- ---- 面板 1：两个分布 ---- -->
+    <div class="lab-panel active" data-panel="dist">
+      <p class="lab-key"><b>先统一口径：</b>四个游戏里，"信号"都是那个需要你警觉的目标——
+        <b>判断为「有毒」「是鸟」「赝品」「不合格」＝ 判断为有信号（说「有」）</b>；
+        <b>判断为「无毒」「不是鸟」「真品」「合格」＝ 判断为无信号（说「无」）</b>。
+        实际有信号且你说「有」= <b>击中 H</b>；实际无信号你却说「有」= <b>误报 FA</b>。</p>
+      <div class="card ctl-card">
+        <div class="ctl-row">
+          <label class="ctl"><span>敏感性 d′</span><input type="range" id="d1" min="0" max="4" step="0.05" value="1.5"><span class="val-badge" id="d1v">1.5</span></label>
+          <label class="ctl"><span>判定标准 c</span><input type="range" id="c1" min="-2.5" max="2.5" step="0.05" value="0"><span class="val-badge" id="c1v">0.00</span></label>
+        </div>
+      </div>
+      <div class="lab-grid">
+        <div class="card">
+          <h4>两个分布与判定标准</h4>
+          <canvas id="cv-dist" class="chart" data-h="330"></canvas>
+          <p class="muted tiny">深色阴影是判为「有信号」的区域：红色部分 = 击中，蓝色部分 = 误报。</p>
+        </div>
+        <div class="card">
+          <h4>混淆矩阵</h4>
+          <table class="cm small">
+            <thead><tr><th></th><th>实际 有信号</th><th>实际 无信号</th></tr></thead>
+            <tbody>
+              <tr><th>说「有」</th><td class="cell hit">H = <b id="lm-h">—</b></td><td class="cell fa">FA = <b id="lm-fa">—</b></td></tr>
+              <tr><th>说「无」</th><td class="cell miss">M = <b id="lm-m">—</b></td><td class="cell cr">CR = <b id="lm-cr">—</b></td></tr>
+            </tbody>
+          </table>
+          <h4>SDT 指标</h4>
+          <div class="metrics tight">
+            <div class="metric"><div class="m-k">d′</div><div class="m-v" id="lm-d">—</div></div>
+            <div class="metric"><div class="m-k">β</div><div class="m-v" id="lm-beta">—</div></div>
+            <div class="metric"><div class="m-k">c</div><div class="m-v" id="lm-c2">—</div></div>
+            <div class="metric"><div class="m-k">A′</div><div class="m-v" id="lm-ap">—</div></div>
+            <div class="metric"><div class="m-k">x_c</div><div class="m-v" id="lm-xc">—</div></div>
+          </div>
+        </div>
+      </div>
+      <p class="note"><b>解读：</b>d′ 越大，两个分布分得越开（分辨能力越强）。β &gt; 1 = 严格，β &lt; 1 = 宽松。
+        在同一个 d′ 下，移动判定标准只改变 β 和 c，<b>完全不改变 d′</b>——这正是 SDT 的核心分离。</p>
+    </div>
+
+    <!-- ---- 面板 2：ROC ---- -->
+    <div class="lab-panel" data-panel="roc">
+      <p class="lab-key"><b>坐标轴读法：</b>纵轴 P(H) = 实际<b>有信号</b>（有毒 / 是鸟 / 赝品 / 不合格）
+        而你说「有」的比例；横轴 P(FA) = 实际<b>无信号</b>而你说「有」的比例。
+        曲线上的每一点 = 同一个 d′ 下的一种判定标准。</p>
+      <div class="card ctl-card">
+        <div class="ctl-row">
+          <label class="ctl"><span>敏感性 d′</span><input type="range" id="d2" min="0" max="4" step="0.05" value="1.5"><span class="val-badge" id="d2v">1.5</span></label>
+          <label class="ctl"><span>判定标准 c</span><input type="range" id="c2" min="-2.5" max="2.5" step="0.05" value="0"><span class="val-badge" id="c2v">0.00</span></label>
+          <label class="ctl"><span>信号分布 σ(SN)</span><input type="range" id="sv" min="0.5" max="2" step="0.05" value="1"><span class="val-badge" id="svv">1.0</span></label>
+        </div>
+      </div>
+      <div class="lab-grid two">
+        <div class="card">
+          <h4>ROC 曲线</h4>
+          <canvas id="cv-roc" class="chart" data-h="330"></canvas>
+          <p class="muted tiny">拖动 c 的滑块，红点会沿同一条 ROC 移动——<b>同一条曲线 = 同一个 d′、不同标准</b>。</p>
+          <div class="metrics tight three">
+            <div class="metric"><div class="m-k">AUC</div><div class="m-v" id="roc-auc">—</div></div>
+            <div class="metric"><div class="m-k">当前 P(H)</div><div class="m-v" id="roc-ph">—</div></div>
+            <div class="metric"><div class="m-k">当前 P(FA)</div><div class="m-v" id="roc-pfa">—</div></div>
+          </div>
+          <p class="muted tiny">0.5 = 随机猜测，1.0 = 完美分辨。等方差下 AUC = Φ(d′/√2)。</p>
+        </div>
+        <div class="card">
+          <h4>z 变换 ROC</h4>
+          <canvas id="cv-zroc" class="chart" data-h="330"></canvas>
+          <p class="muted tiny">把坐标轴换成 z 分数后，ROC 变成一条直线。等方差时 slope = 1；
+            不等方差时 slope = σ(N)/σ(SN)（当前 slope = <span id="zroc-slope">1.00</span>）。</p>
+          <p class="note tiny">现实中人的 zROC 斜率常小于 1——说明信号分布的方差大于噪音分布。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---- 面板 3：先验与奖惩 ---- -->
+    <div class="lab-panel" data-panel="payoff">
+      <p class="lab-key"><b>这里的两张表怎么读：</b>「有信号」列 = 你说「有」（有毒 / 是鸟 / 赝品 / 不合格），
+        「无信号」列 = 你说「无」（无毒 / 不是鸟 / 真品 / 合格）。P(S) 就是<b>真有信号</b>的试次比例。
+        拖动它可以复刻四个游戏：采蘑菇 P(S)=40%、鉴假员 30%、观鸟 30%、质检员 8%。</p>
+      <div class="lab-grid two">
+        <div class="card">
+          <h4>先验概率与最优 β</h4>
+          <div class="ctl-row">
+            <label class="ctl wide"><span>信号先验概率 P(S)</span>
+              <input type="range" id="ps" min="0.05" max="0.95" step="0.05" value="0.5">
+              <span class="val-badge" id="psv">50%</span></label>
+          </div>
+          <div class="formula">β<sub>opt</sub> = [P(N) / P(S)] × [V(CR) + C(FA)] / [V(H) + C(M)]</div>
+          <table class="kv">
+            <tr><td>P(S)</td><td class="mono" id="pay-ps">—</td></tr>
+            <tr><td>P(N)</td><td class="mono" id="pay-pn">—</td></tr>
+            <tr><td>当前 d′</td><td class="mono" id="pay-d">—</td></tr>
+            <tr><td>最优 β（含先验与奖惩）</td><td class="mono" id="pay-bopt">—</td></tr>
+            <tr><td>当前 β</td><td class="mono" id="pay-bcur">—</td></tr>
+            <tr class="hl"><td>最优 c</td><td class="mono" id="pay-copt">—</td></tr>
+            <tr><td>当前 c</td><td class="mono" id="pay-ccur">—</td></tr>
+          </table>
+          <button class="btn-secondary" id="btn-apply-c">把判定标准设为最优 c</button>
+          <p class="muted tiny">C(·) 一律填<b>代价的绝对值</b>（正值）；收益 V 也填正值。</p>
+        </div>
+        <div class="card">
+          <h4>支付矩阵（可按场景修改）</h4>
+          <table class="pay">
+            <thead><tr><th></th><th>说「有信号」</th><th>说「无信号」</th></tr></thead>
+            <tbody>
+              <tr><th>实际 有信号</th>
+                <td>V(H) = <input type="number" id="vH" value="1" step="0.5"></td>
+                <td>C(M) = <input type="number" id="cM" value="1" step="0.5"></td></tr>
+              <tr><th>实际 无信号</th>
+                <td>C(FA) = <input type="number" id="cFA" value="1" step="0.5"></td>
+                <td>V(CR) = <input type="number" id="vCR" value="1" step="0.5"></td></tr>
+            </tbody>
+          </table>
+          <canvas id="cv-pay" class="chart" data-h="250"></canvas>
+          <p class="note tiny"><b>工程实例：</b>雷达漏报敌机代价极高 → β_opt 降低（更宽松）；
+            核电站反复强调「别轻易停机」→ β_opt 升高（更保守），可能导致真正异常时漏报。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---- 面板 4：AI / ML ---- -->
+    <div class="lab-panel" data-panel="ml">
+      <p class="lab-key"><b>术语对照，别被换名字骗了：</b>机器学习里的<b>正例（Positive）= 有信号</b>——
+        在质检场景里就是「不合格品」；模型<b>报警 / 判为正例 = 说「有信号」</b>，
+        不报警<b>判为负例 = 说「无信号」</b>。于是：TP = 击中 H，FP = 误报 FA，FN = 漏报 M，TN = 正确拒斥 CR。</p>
+      <div class="card ctl-card">
+        <div class="ctl-row">
+          <label class="ctl"><span>模型 AUC</span><input type="range" id="ml-auc" min="0.5" max="1" step="0.01" value="0.85"><span class="val-badge" id="ml-aucv">0.85</span></label>
+          <label class="ctl"><span>分类阈值（分数轴）</span><input type="range" id="ml-th" min="-3" max="3" step="0.05" value="0.5"><span class="val-badge" id="ml-thv">0.50</span></label>
+        </div>
+      </div>
+      <div class="lab-grid two">
+        <div class="card">
+          <h4>正例与负例的分数分布</h4>
+          <canvas id="cv-ml" class="chart" data-h="300"></canvas>
+          <p class="muted tiny">AUC = A′（SDT 的非参数敏感性）。阈值左移 → 更宽松 → 召回率上升、精确率下降。</p>
+        </div>
+        <div class="card">
+          <h4>混淆矩阵（按 1000 个样本折算）</h4>
+          <table class="cm small">
+            <thead><tr><th></th><th>实际 正例</th><th>实际 负例</th></tr></thead>
+            <tbody>
+              <tr><th>预测 正例</th><td class="cell hit">TP = <b id="ml-tp">—</b></td><td class="cell fa">FP = <b id="ml-fp">—</b></td></tr>
+              <tr><th>预测 负例</th><td class="cell miss">FN = <b id="ml-fn">—</b></td><td class="cell cr">TN = <b id="ml-tn">—</b></td></tr>
+            </tbody>
+          </table>
+          <div class="metrics tight">
+            <div class="metric"><div class="m-k">Precision</div><div class="m-v" id="ml-prec">—</div></div>
+            <div class="metric"><div class="m-k">Recall / P(H)</div><div class="m-v" id="ml-rec">—</div></div>
+            <div class="metric"><div class="m-k">F1</div><div class="m-v" id="ml-f1">—</div></div>
+            <div class="metric"><div class="m-k">Specificity</div><div class="m-v" id="ml-spec">—</div></div>
+            <div class="metric"><div class="m-k">Accuracy</div><div class="m-v" id="ml-acc">—</div></div>
+            <div class="metric"><div class="m-k">d′ / c</div><div class="m-v tinyv"><span id="ml-d">—</span> / <span id="ml-c">—</span></div></div>
+          </div>
+          <p class="note tiny"><b>术语对照：</b>P(Hit) = Recall = Sensitivity；P(FA) = FPR = 1 − Specificity。
+            调阈值本质上就是在调 c；换模型（换 AUC）才是在调 d′。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---- 面板 5：警觉模拟 ---- -->
+    <div class="lab-panel" data-panel="vig">
+      <p class="lab-key"><b>本模块的「信号」= 需要你抓到的罕见事件</b>（比如质检员那关里偶尔出现的缺陷品，
+        或者雷达屏上偶尔出现的目标）。说「有信号」= 你报警了。这里模拟的正是<b>长期没有信号</b>的处境：
+        大多数时候什么都没发生，你还抓得住吗？</p>
+      <div class="card ctl-card">
+        <div class="ctl-row">
+          <label class="ctl"><span>初始敏感性 d′</span><input type="range" id="vig-d" min="0.5" max="3.5" step="0.1" value="1.8"><span class="val-badge" id="vig-dv">1.8</span></label>
+          <label class="ctl"><span>初始标准 c</span><input type="range" id="vig-c" min="-1.5" max="1.5" step="0.05" value="0"><span class="val-badge" id="vig-cv">0.00</span></label>
+          <label class="check"><input type="checkbox" id="vg-ddown" checked><span>敏感性下降：d′ 随时间降低（唤醒 / 资源理论）</span></label>
+          <label class="check"><input type="checkbox" id="vg-cshift"><span>标准偏移：c 随时间升高（期望理论）</span></label>
+          <button class="btn-primary" id="btn-vig">开始模拟</button>
+        </div>
+        <p class="muted tiny">模拟 Mackworth 钟实验：持续监控 2 小时（8 个 15 分钟时段，每时段 30 个信号 + 270 个噪音事件），
+          用 SDT 生成模型采样出击中与误报。<b>每次点击结果都带抽样波动。</b></p>
+      </div>
+      <div class="lab-grid two">
+        <div class="card"><h4>敏感性 d′ 随时间</h4><canvas id="cv-vig1" class="chart" data-h="300"></canvas></div>
+        <div class="card"><h4>判定标准 c 随时间</h4><canvas id="cv-vig2" class="chart" data-h="300"></canvas></div>
+      </div>
+      <div class="note" id="vig-sum">点击「开始模拟」生成一组数据。</div>
+      <div class="lab-grid two">
+        <div class="card">
+          <h4>敏感性下降：两种解释</h4>
+          <p><b>唤醒理论（Welford）</b>：长时间没有事件 → 唤醒水平下降 → 信号与噪音分布相互靠拢。</p>
+          <p><b>维持需求理论（Warm）</b>：持续注意消耗有限认知资源 → 资源耗竭 → d′ 下降。</p>
+          <p class="muted tiny">两种理论都预测 d′ 下降，但机制不同：一个说"人不清醒了"，一个说"资源用完了"。</p>
+        </div>
+        <div class="card">
+          <h4>标准偏移与阻止技术</h4>
+          <p><b>期望理论（Baker）</b>：漏掉信号 → 主观 P(S) 下降 → 调高 β → 更多漏报 → 恶性循环。</p>
+          <p class="muted tiny">阻止技术：目标样例、双眼竞争 / 闪烁、降低事件率、培训、休息、冥想、结果反馈、
+            虚假信号、置信水平报告、间歇第二任务。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 6. 教师后台 ===================== -->
+<section id="screen-dash" class="screen">
+  <div class="wrap wide">
+    <div class="section-head">
+      <div class="eyebrow">教师管理后台</div>
+      <h2>全班成绩与分布</h2>
+      <p class="muted">查看同学在采蘑菇 / 鉴假员 / 观鸟 / 质检员四个场景中的成绩与分布。</p>
+      <p class="store-note" id="store-note" style="display:none"></p>
+    </div>
+
+    <div class="dash-bar">
+      <div class="dash-filters">
+        <button class="dash-filter active" data-game="all">全部</button>
+        <button class="dash-filter" data-game="mushroom">🍄 采蘑菇</button>
+        <button class="dash-filter" data-game="antique">🏺 鉴假员</button>
+        <button class="dash-filter" data-game="bird">🐦 观鸟</button>
+        <button class="dash-filter" data-game="qc">🧸 质检员</button>
+      </div>
+      <div class="dash-actions">
+        <span class="badge">记录 <b id="dash-count">0</b> 条 · 被试 <b id="dash-players">0</b> 人</span>
+        <button class="btn-mini" id="btn-refresh">刷新</button>
+        <button class="btn-mini" id="btn-csv">导出 CSV</button>
+        <button class="btn-mini" id="btn-json">导出 JSON</button>
+        <button class="btn-mini" id="btn-import">导入 JSON</button>
+        <input type="file" id="file-import" accept=".json,application/json" style="display:none">
+        <button class="btn-mini danger" id="btn-clear">清空</button>
+      </div>
+    </div>
+
+    <div class="lab-grid two">
+      <div class="card"><h4>班级 ROC 散点图（每人一点）</h4><canvas id="cv-dash-roc" class="chart" data-h="300"></canvas></div>
+      <div class="card"><h4>敏感性 d′ 分布</h4><canvas id="cv-dash-d" class="chart" data-h="300"></canvas></div>
+      <div class="card"><h4>判据 c 分布（谨慎 vs 宽松）</h4><canvas id="cv-dash-c" class="chart" data-h="280"></canvas></div>
+      <div class="card"><h4>各场景平均 d′ 对比</h4><canvas id="cv-dash-game" class="chart" data-h="280"></canvas></div>
+    </div>
+
+    <div class="card">
+      <h4>个人经验 d′ vs 系统设定 d′</h4>
+      <canvas id="cv-dash-ideal" class="chart" data-h="320"></canvas>
+      <p class="muted tiny">理想观察者应落在这条对角线上；人因内部噪声通常落在对角线下方。</p>
+    </div>
+
+    <div class="card table-card">
+      <h4>明细数据</h4>
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>学号</th><th>姓名</th><th>游戏</th>
+              <th>H</th><th>M</th><th>FA</th><th>CR</th>
+              <th>P(H)</th><th>P(FA)</th><th>d′</th><th>c</th><th>准确率</th>
+              <th>系统 d′</th><th>试次</th><th>提交时间</th>
+            </tr>
+          </thead>
+          <tbody id="dash-tbody">
+            <tr><td colspan="15" class="empty">暂无数据</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted tiny">数据保存在本机浏览器（localStorage）。要让全班数据汇总到一处，可让同学用「导出 JSON」把文件发给你，再用「导入 JSON」合并。</p>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  信号检测论交互式实验室 · 北京师范大学心理学部 · 工程心理学 · 2026
+</footer>
+
+<script src="js/util.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/store.js"></script>
+<script src="js/games.js"></script>
+<script src="js/lab.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

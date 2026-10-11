@@ -1,0 +1,596 @@
+/* ============================================================
+ * 信号检测论 · 交互式实验室 —— 样式
+ * ============================================================ */
+:root {
+  /* ===== 配色：炭灰底 + 薄荷点缀 =====
+   * 底色 #2E343A / 文本 #E9EBED / 点缀 #73C8B8。
+   * 炭灰是"中性灰"不是"黑"：底色、卡片、卡片内的灰底块三级各差一档亮度（
+   * #2E343A → #383F46 → #434B52），边框用半透明白，深色界面上比实色边框更自然。
+   * accent-soft 是薄荷的淡底（重点格、观察提示框），accent-ink 是淡底上的薄荷字。 */
+  --bg: #2E343A;                       /* 页面底色（炭灰） */
+  --bg-deep: #252B30;                  /* 比底色更深一档：顶栏、公式块 */
+  --card: #383F46;                     /* 卡片 */
+  --surface: #434B52;                  /* 卡片内的灰底块 / 徽章 / 表头 */
+  --surface-2: #4E575F;                /* hover 一档 */
+  --text: #E9EBED;                     /* 正文 */
+  --text-strong: #F7F8F9;              /* 标题 */
+  --text-light: #B2BBC2;               /* 次要文字 */
+  --border: rgba(240, 242, 244, 0.16);
+  --accent: #73C8B8;                   /* 薄荷点缀色 */
+  --accent-dark: #4FA394;              /* 点缀色的 hover / 深一档 */
+  --accent-ink: #9BE0D2;               /* 淡底上的薄荷字 */
+  --accent-soft: rgba(115, 200, 184, 0.16);
+  --on-accent: #16211F;                /* 薄荷底上的字（深色才读得出） */
+  --green: #7BD99A;
+  --red: #F88C8E;
+  --orange: #F5B76F;
+  --font-serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "SimSun", serif;
+  --font-sans: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, "Courier New", monospace;
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.22);
+  --shadow-hover: 0 10px 26px rgba(0, 0, 0, 0.34);
+  /* 实验页画面高度：让「顶栏 + 画面 + 图鉴 + 作答按钮 + 页脚」正好装进一屏。
+     用 91.4vh 而不是 100vh：图鉴条和作答按钮本身也是按 vh 缩放的（clamp(...9vh...)），
+     窗口越高它们吃掉越多，线性拟合下来非画面部分 ≈ 292px + 0.086vh，
+     于是画面能拿到的就是剩下的这些。窗口特别矮时靠 230px 下限兜底（会开始滚动）。
+     改游戏页的字号/内边距时要回来微调这两个常数。 */
+  --scene-h: clamp(230px, calc(91vh - 302px), 660px);
+  /* 告诉浏览器这是深色界面：表单控件、滚动条、下拉框都跟着走深色 */
+  color-scheme: dark;
+}
+
+html { background: #2E343A; }
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+
+.mono { font-family: var(--font-mono); }
+.muted { color: var(--text-light); }
+.tiny { font-size: 12.5px; }
+.center { text-align: center; }
+.small { font-size: 13px; }
+
+/* ===================== 顶栏 ===================== */
+.topbar {
+  background: var(--bg-deep);
+  color: var(--text-strong);
+  position: sticky; top: 0; z-index: 50;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  border-bottom: 1px solid var(--border);
+}
+.topbar-inner {
+  max-width: 1240px; margin: 0 auto; padding: 10px 28px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+.brand { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.brand-mark {
+  background: var(--accent); color: var(--on-accent);
+  font-weight: 900; font-family: var(--font-serif);
+  padding: 2px 9px; border-radius: 6px; letter-spacing: 0.5px; font-size: 14px;
+}
+.brand-text { font-size: 15px; font-weight: 500; letter-spacing: 0.3px; }
+.topbar-actions { display: flex; align-items: center; gap: 10px; }
+.whoami { font-size: 13px; color: var(--text-light); }
+
+/* ===================== 屏幕切换 ===================== */
+.screen { display: none; flex: 1 0 auto; }
+.screen.active { display: block; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 22px 28px 40px; }
+.wrap.wide { max-width: 1240px; }
+
+/* ===================== 通用卡片 / 按钮 ===================== */
+.card {
+  background: var(--card); border-radius: 14px; padding: 20px 22px;
+  box-shadow: var(--shadow); margin-bottom: 18px;
+}
+.card h3 { font-family: var(--font-serif); font-size: 18px; color: var(--text-strong); margin-bottom: 10px; }
+.card h4 { font-family: var(--font-serif); font-size: 15px; color: var(--text-strong); margin: 0 0 10px; }
+.card h5 { font-size: 14px; color: var(--text-strong); margin-bottom: 6px; }
+
+.btn-primary {
+  background: var(--accent); color: var(--on-accent); border: none; border-radius: 10px;
+  padding: 12px 22px; font-size: 15px; font-weight: 600; cursor: pointer;
+  font-family: var(--font-sans); transition: all .2s; width: 100%;
+}
+.btn-primary:hover { background: var(--accent-dark); transform: translateY(-1px); }
+.btn-secondary {
+  background: var(--surface); color: var(--text-strong); border: 1.5px solid var(--border);
+  border-radius: 10px; padding: 11px 20px; font-size: 14px; cursor: pointer;
+  font-family: var(--font-sans); transition: all .2s;
+}
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent-ink); background: var(--surface-2); }
+.btn-text {
+  background: none; border: none; color: var(--text-light); font-size: 13.5px;
+  cursor: pointer; padding: 10px 0 0; text-decoration: underline; font-family: var(--font-sans);
+}
+.btn-text:hover { color: var(--accent-ink); }
+.btn-mini {
+  background: rgba(255, 255, 255, 0.10); color: var(--text); border: 1px solid var(--border);
+  border-radius: 8px; padding: 6px 12px; font-size: 12.5px; cursor: pointer;
+  font-family: var(--font-sans); transition: all .2s; white-space: nowrap;
+}
+.btn-mini:hover { background: rgba(255, 255, 255, 0.18); border-color: var(--accent); }
+.btn-mini.ghost { background: transparent; }
+.btn-mini.danger { border-color: rgba(242, 121, 124, 0.55); color: #FFB9BB; }
+.screen:not(#screen-login) .btn-mini.ghost { color: var(--text); }
+
+/* 后台里的按钮在卡片灰底上 */
+.dash-actions .btn-mini {
+  background: var(--surface); color: var(--text-strong); border: 1.5px solid var(--border);
+}
+.dash-actions .btn-mini:hover { border-color: var(--accent); }
+.dash-actions .btn-mini.danger { color: var(--red); border-color: rgba(242, 121, 124, 0.45); }
+
+/* ===================== 登录页 ===================== */
+.hero {
+  background: linear-gradient(135deg, #272D33 0%, #363E46 62%, #2F3C38 100%);
+  color: var(--text-strong);
+  padding: clamp(28px, 5vh, 52px) 28px clamp(26px, 4.4vh, 44px);
+  position: relative; overflow: hidden;
+  border-bottom: 1px solid var(--border);
+}
+.hero::after {
+  content: ''; position: absolute; top: 0; right: 0; width: 460px; height: 100%;
+  background: radial-gradient(circle at 70% 50%, rgba(115, 200, 184, 0.13) 0%, transparent 70%);
+}
+.hero h1, .hero .sub { max-width: 1080px; margin-left: auto; margin-right: auto; position: relative; z-index: 1; }
+.hero h1 { font-family: var(--font-serif); font-size: clamp(26px, 4.2vh, 34px); font-weight: 700; }
+.hero .sub { color: var(--accent); font-size: 15px; margin-top: 4px; letter-spacing: 0.6px; }
+
+/* 登录卡片整体落在 hero 下方（原来是 -26px 上提，卡片会压在同色背景上，
+   深色主题下更像粘在一起；改成正值，卡片顶端与 hero 底边留一段空隙） */
+.login-wrap {
+  max-width: 1080px; margin: 22px auto 30px; padding: 0 28px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 22px; align-items: start;
+  position: relative; z-index: 2;
+}
+.login-card { display: flex; flex-direction: column; gap: 12px; }
+.login-card h2 { font-family: var(--font-serif); font-size: 20px; color: var(--text-strong); }
+.field { display: block; }
+.field span { display: block; font-size: 13px; color: var(--text-light); margin-bottom: 5px; }
+.field input {
+  width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 9px;
+  font-size: 15px; font-family: var(--font-sans); color: var(--text);
+  background: var(--surface); transition: border .2s;
+}
+.field input::placeholder { color: #8E979E; }
+.field input:focus { outline: none; border-color: var(--accent); background: var(--surface-2); }
+.err { color: var(--red); font-size: 13px; min-height: 18px; }
+.intro-card h3 { font-family: var(--font-serif); font-size: 19px; color: var(--text-strong); margin-bottom: 10px; }
+.role-list { list-style: none; margin: 12px 0; }
+.role-list li { padding: 7px 0; border-bottom: 1px dashed var(--border); font-size: 14.5px; }
+.role-list li:last-child { border-bottom: none; }
+
+/* ---- 登录页的小字整体放大两号 ----
+ * 和选择页/结果页/实验室一样用 #screen-login 限定，.muted / .tiny 是全局类，
+ * 不限定的话别的页面会跟着变。标题（h1/h2/h3）不在此列。 */
+#screen-login .hero .sub { font-size: 17px; }
+#screen-login .field span { font-size: 15px; }
+#screen-login .err { font-size: 15px; min-height: 20px; }
+#screen-login .btn-text { font-size: 15.5px; }
+#screen-login .role-list li { font-size: 16.5px; }
+#screen-login .muted { font-size: 17.5px; }
+#screen-login .muted.tiny { font-size: 14.5px; }
+#screen-login .btn-primary { font-size: 17px; padding: 13px 22px; }
+#screen-login .btn-secondary { font-size: 16px; padding: 12px 20px; }
+
+/* ===================== 选择角色页 ===================== */
+.section-head { margin-bottom: 22px; }
+.section-head h2 { font-family: var(--font-serif); font-size: 24px; color: var(--text-strong); }
+.eyebrow {
+  display: inline-block; font-size: 12px; letter-spacing: 1.5px; color: var(--accent);
+  font-weight: 700; text-transform: uppercase; margin-bottom: 4px;
+}
+
+.settings { display: grid; gap: 18px; }
+.setting > label { display: block; font-size: 13.5px; font-weight: 500; color: var(--text-strong); margin-bottom: 8px; }
+.setting.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.range-row { display: flex; align-items: center; gap: 12px; }
+.range-end { font-size: 12px; color: var(--text-light); white-space: nowrap; }
+.val-badge {
+  background: var(--accent); color: var(--on-accent); border-radius: 20px; padding: 2px 12px;
+  font-size: 13px; font-family: var(--font-mono); font-weight: 600; min-width: 54px; text-align: center;
+}
+input[type=range] {
+  -webkit-appearance: none; appearance: none; flex: 1; height: 6px; border-radius: 3px;
+  background: linear-gradient(90deg, rgba(115, 200, 184, 0.55), rgba(226, 228, 231, 0.16)); outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%;
+  background: var(--accent); border: 2px solid var(--card); box-shadow: 0 1px 5px rgba(0, 0, 0, .5); cursor: pointer;
+}
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%; background: var(--accent);
+  border: 2px solid var(--card); cursor: pointer;
+}
+.radio-row { display: flex; flex-direction: column; gap: 6px; }
+.radio-row.row-3 { flex-direction: row; flex-wrap: wrap; gap: 8px 22px; }
+
+/* 限时呈现：画面底部的金色倒计时条 */
+.stim-bar {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 5px;
+  background: rgba(255, 255, 255, 0.13);
+}
+.stim-bar i { display: block; height: 100%; width: 0; background: var(--accent); }
+.stim-bar.off { display: none; }
+.radio, .check {
+  display: flex; align-items: flex-start; gap: 8px; font-size: 14px; cursor: pointer;
+  color: var(--text); line-height: 1.5;
+}
+.radio input, .check input { margin-top: 4px; accent-color: var(--accent); }
+
+/* 宽屏时三项设置并排，省下一大截纵向空间，让三张角色卡尽量留在首屏 */
+@media (min-width: 1080px) {
+  .settings { grid-template-columns: 1.05fr 1fr 1.1fr; gap: 0; align-items: start; }
+  .settings .setting { padding: 0 20px; }
+  .settings .setting:first-child { padding-left: 0; }
+  .settings .setting:last-child { padding-right: 0; }
+  .settings .setting + .setting { border-left: 1px solid var(--border); }
+  .setting.two-col { grid-template-columns: 1fr; gap: 14px; }
+}
+
+/* 四个场景：窄屏自动降成 3 / 2 / 1 列 */
+.game-cards {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(226px, 1fr));
+  gap: 16px; margin: 22px 0;
+}
+.game-cards .g-card { min-width: 0; }
+.g-card {
+  background: var(--card); border-radius: 16px; padding: 26px 22px; cursor: pointer;
+  transition: all .28s; box-shadow: var(--shadow); border: 2px solid transparent;
+  position: relative; overflow: hidden; display: flex; flex-direction: column;
+}
+.g-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: var(--accent); }
+.g-icon { font-size: 40px; line-height: 1; margin-bottom: 12px; }
+.g-card h3 { font-family: var(--font-serif); font-size: 19px; color: var(--text-strong); margin-bottom: 3px; }
+.g-sub { font-size: 12.5px; color: var(--accent); font-weight: 600; margin-bottom: 10px; }
+.g-desc { font-size: 13.5px; color: var(--text-light); flex: 1; }
+.g-meta {
+  display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 12px;
+}
+.g-meta span.hot { background: var(--accent-soft); color: var(--accent-ink); font-weight: 600; }
+.g-meta span {
+  font-size: 11.5px; background: var(--surface); color: var(--text);
+  padding: 2px 9px; border-radius: 12px;
+}
+.g-go { font-size: 13.5px; color: var(--accent); font-weight: 600; }
+
+/* ---- 选择角色页的小字整体放大两号 ----
+ * .muted / .tiny 是全局类，所以这里统一用 #screen-select 限定，别处的字号一点不动。
+ * 用 ID 限定还顺带解决了优先级：文件末尾那几个矮屏媒体查询（.g-desc 12.8px 之类）
+ * 只有类选择器，压不回这一页的字号。 */
+#screen-select .section-head p { font-size: 17.5px; }
+#screen-select .setting > label { font-size: 15.5px; }
+#screen-select .range-end { font-size: 14px; }
+#screen-select .val-badge { font-size: 15px; }
+#screen-select .radio, #screen-select .check { font-size: 16px; }
+#screen-select .muted.tiny { font-size: 14.5px; }
+#screen-select .g-sub { font-size: 14.5px; }
+#screen-select .g-desc { font-size: 15.5px; line-height: 1.62; }
+#screen-select .g-meta span { font-size: 13.5px; }
+#screen-select .g-go { font-size: 15.5px; }
+#screen-select .center.muted { font-size: 16.5px; }
+/* 字变大了，横向内边距收一点，把宽度还给正文——但不能动 minmax 的 226px，
+   那正是"四张卡刚好排成一行"的临界值，加宽就会掉一张到第二行。 */
+#screen-select .g-card { padding: 22px 18px; }
+
+/* ===================== 游戏页 ===================== */
+/* 画面撑到一屏能容下的最大。
+   这里的关键是"横向别跟着画面缩"：早先 .game-wrap 的宽度是由画面高度反推的
+   （16:9），矮屏上宽度只剩 500px 出头，顶部的角色名 + 三个徽章就被挤成两行，
+   白白吃掉七八十像素——而画面本身只会更小。现在外层固定到 1240px，
+   画面 / 图鉴 / 作答按钮各自按 16:9 居中排成一列，标题行始终是一行。
+   1240px 与 --scene-h 的上限 660px 对应（660×16/9+56 = 1230）。 */
+.game-wrap { max-width: 1240px; padding-top: 10px; padding-bottom: 12px; }
+.scene-wrap, .guide, .answers { width: min(100%, calc(var(--scene-h) * 16 / 9)); margin-left: auto; margin-right: auto; }
+.game-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 8px; flex-wrap: wrap; }
+.game-head h2 { font-family: var(--font-serif); font-size: 20px; color: var(--text-strong); }
+.game-status { display: flex; gap: 8px; align-items: center; }
+.badge {
+  background: var(--surface); color: var(--text); border-radius: 20px;
+  padding: 5px 14px; font-size: 13px; font-family: var(--font-mono);
+}
+.badge.ghost { background: transparent; border: 1px dashed var(--border); }
+/* 营地警戒的枪声开关：长得像徽章，但可以点 */
+.mute-btn {
+  font-family: inherit; cursor: pointer; color: var(--accent-ink);
+  border-style: solid; transition: all .2s;
+}
+.mute-btn:hover { background: var(--accent-soft); border-color: var(--accent); }
+.mute-btn.off { color: var(--text-light); border-color: var(--border); }
+
+.scene-wrap { position: relative; border-radius: 14px; overflow: hidden; box-shadow: 0 6px 26px rgba(0, 0, 0, 0.34); }
+.scene {
+  display: block; width: 100%; height: var(--scene-h); background: #20242c;
+}
+
+.flash {
+  position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
+  font-size: 96px; font-weight: 700; pointer-events: none;
+}
+.flash.show { display: flex; animation: pop .34s ease-out; }
+.flash.ok { color: #7ee08a; text-shadow: 0 0 26px rgba(0, 0, 0, .5); }
+.flash.bad { color: #ff8d8d; text-shadow: 0 0 26px rgba(0, 0, 0, .5); }
+@keyframes pop { 0% { opacity: 0; transform: scale(.6); } 45% { opacity: 1; transform: scale(1.05); } 100% { opacity: .85; transform: scale(1); } }
+
+.intro-overlay {
+  position: fixed; inset: 0; background: rgba(15, 18, 20, 0.9);
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+  backdrop-filter: blur(3px); transition: opacity .25s; z-index: 200;
+}
+.intro-overlay.hide { opacity: 0; pointer-events: none; display: none; }
+.intro-box {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 22px 26px; max-width: 760px;
+  max-height: 90vh; overflow-y: auto; box-shadow: 0 18px 50px rgba(0, 0, 0, .6);
+}
+.intro-box .btn-primary { margin-top: 6px; }
+.intro-box h3 { font-family: var(--font-serif); font-size: 19px; color: var(--text-strong); margin-bottom: 12px; }
+.intro-sub { font-family: var(--font-sans); font-size: 13px; color: var(--text-light); font-weight: 400; }
+.intro-desc { font-size: 14.5px; margin-bottom: 10px; }
+.intro-cue { font-size: 14px; background: var(--accent-soft); border-left: 3px solid var(--accent); padding: 9px 13px; border-radius: 6px; margin-bottom: 14px; }
+/* 说明层收成了单栏三块（描述 / 观察提示 / 任务行），.intro-grid 与 .pay-mini 随之删去 */
+.intro-box .btn-primary { width: auto; padding: 11px 26px; }
+
+.guide { display: flex; align-items: center; gap: 14px; margin: 8px auto; }
+.guide-label {
+  font-size: 12.5px; color: var(--accent); font-weight: 700; writing-mode: vertical-rl;
+  letter-spacing: 2px; flex: 0 0 auto;
+}
+.guide-stack { flex: 1; min-width: 0; }
+.guide-canvas {
+  display: block; height: clamp(72px, 9vh, 96px); width: 100%; border-radius: 10px;
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+.guide-caps {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
+  font-size: 11.5px; color: var(--text-light); padding: 3px 8px 0; line-height: 1.35;
+}
+.guide-caps span:last-child { text-align: right; }
+
+.answers { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 4px auto 0; }
+.ans-btn {
+  padding: clamp(11px, 1.9vh, 20px); border-radius: 14px; border: 2px solid transparent; cursor: pointer;
+  font-size: clamp(16px, 2.1vh, 19px); font-weight: 700; font-family: var(--font-sans);
+  transition: all .18s; letter-spacing: 1px;
+}
+.ans-yes { background: rgba(242, 121, 124, 0.13); color: var(--red); border-color: rgba(242, 121, 124, 0.42); }
+.ans-yes:hover { background: var(--red); color: #2A1416; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(242, 121, 124, .3); }
+.ans-no { background: rgba(110, 208, 140, 0.12); color: var(--green); border-color: rgba(110, 208, 140, 0.42); }
+.ans-no:hover { background: var(--green); color: #10241A; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(110, 208, 140, .28); }
+.ans-btn:active { transform: translateY(0) scale(.99); }
+
+/* ---- 游戏页的小字整体放大两号 ----
+ * 和别的页一样用 #screen-game 限定。注意这里改字号会撑高整块，
+ * 如果 --scene-h 里减去的那部分没跟着调，画面就会被挤出屏幕外——两处要一起改。 */
+#screen-game .game-head h2 { font-size: 21px; }
+#screen-game .badge { font-size: 15px; padding: 6px 15px; }
+#screen-game .guide-label { font-size: 14.5px; }
+#screen-game .guide-caps { font-size: 13.5px; }
+#screen-game .intro-sub { font-size: 15px; }
+#screen-game .intro-box h3 { font-size: 20px; }
+#screen-game .intro-desc { font-size: 16.5px; }
+#screen-game .intro-cue { font-size: 16px; padding: 11px 15px; }
+#screen-game .intro-box .muted { font-size: 17.5px; }
+#screen-game .intro-box .btn-primary { font-size: 17px; }
+
+/* ===================== 结果页 ===================== */
+.result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+.cm { width: 100%; border-collapse: separate; border-spacing: 6px; }
+.cm th { font-size: 12.5px; color: var(--text-light); font-weight: 500; padding: 4px; text-align: center; }
+.cm tbody th { text-align: right; white-space: nowrap; }
+.cell {
+  border-radius: 10px; padding: 14px 8px; text-align: center; font-size: 15px;
+  display: table-cell;
+}
+.cell b { display: block; font-family: var(--font-mono); font-size: 15px; }
+.cell span { display: block; font-size: 12px; opacity: .75; font-family: var(--font-mono); }
+/* 混淆矩阵四格：底色统一压到"炭灰 + 一档语义色"，字用亮色才读得清 */
+.cell.hit { background: rgba(110, 208, 140, 0.16); color: #90E0A8; }
+.cell.fa { background: rgba(242, 121, 124, 0.16); color: #FFA3A5; }
+.cell.miss { background: rgba(240, 168, 92, 0.16); color: #F5C084; }
+.cell.cr { background: rgba(115, 200, 184, 0.15); color: #8ED9CA; }
+.cm.small .cell { padding: 9px 6px; font-size: 13.5px; }
+.cm.small .cell b { font-size: 13.5px; }
+
+.metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.metrics.tight { grid-template-columns: repeat(2, 1fr); margin-top: 8px; }
+.metrics.three { grid-template-columns: repeat(3, 1fr); }
+.metric { background: var(--surface); border-radius: 10px; padding: 10px 13px; }
+.metric.hl { background: var(--accent-soft); box-shadow: inset 0 0 0 1px rgba(115, 200, 184, 0.38); }
+.m-k { font-size: 12px; color: var(--text-light); }
+.m-v { font-size: 20px; font-family: var(--font-mono); font-weight: 700; color: var(--text-strong); }
+.m-v.tinyv { font-size: 13px; font-weight: 500; color: var(--text-light); }
+
+/* 概念实验室每个面板顶部的"口径说明" */
+.lab-key {
+  background: var(--surface); border-left: 3px solid var(--accent);
+  border-radius: 8px; padding: 10px 15px; font-size: 13.5px; margin-bottom: 14px;
+}
+.lab-key b { color: var(--accent-ink); }
+
+.opt-box {
+  margin-top: 14px; background: var(--surface); border-left: 3px solid var(--accent);
+  padding: 11px 14px; border-radius: 6px; font-size: 13.5px; line-height: 1.7;
+}
+.cmp { width: 100%; border-collapse: collapse; margin: 12px 0 16px; font-size: 14px; }
+.cmp th, .cmp td { padding: 9px 12px; text-align: center; border-bottom: 1px solid var(--border); }
+.cmp thead th { color: var(--text-light); font-weight: 500; font-size: 13px; }
+.cmp td:first-child, .cmp th:first-child { text-align: left; }
+.cmp tr.you { background: var(--accent-soft); }
+.cmp tr.you td { font-family: var(--font-mono); font-weight: 600; color: var(--accent-ink); }
+.insight { font-size: 14px; background: var(--surface); padding: 13px 16px; border-radius: 10px; line-height: 1.75; }
+.insight b { color: var(--accent-ink); }
+.actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+.actions .btn-primary { width: auto; }
+
+/* ---- 检测成绩页的小字整体放大两号 ---- */
+#screen-result .muted { font-size: 17.5px; }
+#screen-result .muted.tiny { font-size: 14.5px; }
+#screen-result .cm th { font-size: 14.5px; }
+#screen-result .cell { font-size: 17px; }
+#screen-result .cell b { font-size: 17px; }
+#screen-result .cell span { font-size: 14px; }
+#screen-result .m-k { font-size: 14px; }
+#screen-result .m-v.tinyv { font-size: 15px; }
+#screen-result .opt-box { font-size: 15.5px; }
+#screen-result .cmp { font-size: 16px; }
+#screen-result .cmp thead th { font-size: 15px; }
+#screen-result .insight { font-size: 16px; }
+
+/* ===================== 实验室 ===================== */
+.lab-tabs {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px;
+  border-bottom: 2px solid var(--border); padding-bottom: 10px;
+}
+.lab-tab {
+  background: var(--surface); border: 1.5px solid var(--border); border-radius: 20px;
+  padding: 8px 18px; font-size: 14px; cursor: pointer; color: var(--text-light);
+  font-family: var(--font-sans); transition: all .2s;
+}
+.lab-tab:hover { border-color: var(--accent); color: var(--accent-ink); }
+.lab-tab.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+.lab-panel { display: none; }
+.lab-panel.active { display: block; animation: fade .25s; }
+@keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.ctl-card { padding: 16px 20px; }
+.ctl-row { display: flex; gap: 26px; flex-wrap: wrap; align-items: center; }
+.ctl { display: flex; align-items: center; gap: 10px; font-size: 13.5px; flex: 1; min-width: 260px; }
+.ctl > span:first-child { color: var(--text-strong); font-weight: 500; white-space: nowrap; }
+.ctl.wide { width: 100%; }
+.ctl.wide input[type=range] { flex: 1; }
+.lab-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; }
+.lab-grid.two { grid-template-columns: 1fr 1fr; }
+.chart { display: block; width: 100%; }
+.note {
+  background: var(--surface); border-left: 3px solid var(--accent); padding: 12px 16px;
+  border-radius: 6px; font-size: 13.5px; line-height: 1.75; margin-bottom: 20px;
+}
+.note.tiny { font-size: 13px; padding: 9px 13px; margin-bottom: 0; }
+.formula {
+  font-family: var(--font-mono); font-size: 13.5px; background: var(--bg-deep); color: var(--accent-ink);
+  border: 1px solid var(--border);
+  padding: 11px 14px; border-radius: 8px; margin: 12px 0; overflow-x: auto; white-space: nowrap;
+}
+.kv { width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 12px; }
+.kv td { padding: 7px 4px; border-bottom: 1px solid var(--border); }
+.kv td:last-child { text-align: right; font-weight: 600; color: var(--text-strong); }
+.kv tr.hl td { background: var(--accent-soft); }
+.pay { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-bottom: 14px; }
+.pay th { font-size: 12.5px; color: var(--text-light); font-weight: 500; padding: 5px; }
+.pay th:first-child { text-align: right; padding-right: 10px; }
+.pay td { padding: 6px; text-align: center; }
+.pay input {
+  width: 74px; padding: 5px 8px; border: 1.5px solid var(--border); border-radius: 7px;
+  font-family: var(--font-mono); font-size: 13.5px; text-align: center; color: var(--text);
+  background: var(--surface);
+}
+.pay input:focus { outline: none; border-color: var(--accent); }
+
+/* ---- 概念实验室的小字整体放大两号（.muted / .m-k 这类通用类仍用 #screen-lab 限定）---- */
+#screen-lab .muted { font-size: 17.5px; }
+#screen-lab .muted.tiny { font-size: 14.5px; }
+#screen-lab .lab-key { font-size: 15.5px; }
+#screen-lab .lab-tab { font-size: 16px; }
+#screen-lab .ctl { font-size: 15.5px; }
+#screen-lab .val-badge { font-size: 15px; }
+#screen-lab .note { font-size: 15.5px; }
+#screen-lab .note.tiny { font-size: 15px; }
+#screen-lab .formula { font-size: 15.5px; }
+#screen-lab .kv { font-size: 16px; }
+#screen-lab .pay { font-size: 15.5px; }
+#screen-lab .pay th { font-size: 14.5px; }
+#screen-lab .pay input { font-size: 15.5px; }
+#screen-lab .cm th { font-size: 14.5px; }
+#screen-lab .cm.small .cell { font-size: 15.5px; }
+#screen-lab .cm.small .cell b { font-size: 15.5px; }
+#screen-lab .m-k { font-size: 14px; }
+#screen-lab .insight { font-size: 16px; }
+
+/* ===================== 教师后台 ===================== */
+.store-note {
+  background: rgba(240, 168, 92, 0.14); color: #F5C084; padding: 9px 14px; border-radius: 8px;
+  font-size: 13px; margin-top: 10px;
+}
+.dash-bar {
+  display: flex; justify-content: space-between; align-items: center; gap: 16px;
+  flex-wrap: wrap; margin-bottom: 18px;
+}
+.dash-filters { display: flex; gap: 8px; flex-wrap: wrap; }
+.dash-filter {
+  background: var(--surface); border: 1.5px solid var(--border); border-radius: 20px;
+  padding: 7px 16px; font-size: 13.5px; cursor: pointer; color: var(--text-light);
+  font-family: var(--font-sans); transition: all .2s;
+}
+.dash-filter:hover { border-color: var(--accent); color: var(--accent-ink); }
+.dash-filter.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+.dash-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.table-card { padding-bottom: 16px; }
+.table-scroll { overflow-x: auto; margin-top: 6px; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table th {
+  text-align: left; padding: 8px 10px; color: var(--text-light); font-weight: 500;
+  font-size: 12.5px; border-bottom: 2px solid var(--border); white-space: nowrap;
+  position: sticky; top: 0; background: var(--surface);
+}
+.data-table td { padding: 7px 10px; border-bottom: 1px solid var(--border); font-family: var(--font-mono); white-space: nowrap; }
+.data-table td:nth-child(1), .data-table td:nth-child(2), .data-table td:nth-child(3) { font-family: var(--font-sans); }
+.data-table td.num { text-align: right; }
+.data-table tr:hover td { background: rgba(255, 255, 255, 0.04); }
+.data-table .empty { text-align: center; color: var(--text-light); padding: 26px; font-family: var(--font-sans); }
+
+/* ===================== 页脚 ===================== */
+.foot {
+  text-align: center; padding: 15px; color: var(--text-light); font-size: 13px;
+  border-top: 1px solid var(--border); margin-top: auto;
+}
+
+/* ===================== 响应式 ===================== */
+@media (max-width: 960px) {
+  .game-cards { grid-template-columns: 1fr; }
+  .login-wrap { grid-template-columns: 1fr; margin-top: 20px; }
+  .result-grid, .lab-grid, .lab-grid.two { grid-template-columns: 1fr; }
+  .setting.two-col { grid-template-columns: 1fr; }
+  .metrics.three { grid-template-columns: repeat(2, 1fr); }
+  .hero h1 { font-size: 26px; }
+  .guide-label { display: none; }
+}
+@media (max-width: 620px) {
+  .wrap { padding: 20px 16px 40px; }
+  .answers { grid-template-columns: 1fr; }
+  .metrics { grid-template-columns: 1fr; }
+  .topbar-inner { padding: 10px 14px; }
+  .brand-text { display: none; }
+}
+/* 矮屏（13/14 寸笔记本常见 768~800px 高）再压一层纵向留白，尽量一屏放下 */
+@media (max-height: 800px) {
+  .wrap { padding-top: 16px; padding-bottom: 26px; }
+  /* .wrap 的通告在上面，游戏页要盖回自己那套更紧凑的内边距 */
+  .game-wrap { padding-top: 10px; padding-bottom: 12px; }
+  .card { padding: 16px 18px; margin-bottom: 14px; }
+  .section-head { margin-bottom: 14px; }
+  .section-head h2 { font-size: 21px; }
+  .hero { padding-top: 24px; padding-bottom: 22px; }
+  .login-wrap { margin-bottom: 20px; }
+  .game-cards { gap: 14px; margin: 14px 0; }
+  .g-card { padding: 14px 15px; }
+  .g-icon { font-size: 28px; margin-bottom: 4px; }
+  .g-sub { margin-bottom: 6px; }
+  .g-desc { font-size: 12.8px; line-height: 1.52; }
+  .g-meta { margin: 9px 0 7px; }
+  .settings { gap: 13px; }
+  .setting > label { margin-bottom: 6px; }
+  .foot { padding: 14px; }
+  .topbar-inner { padding: 7px 28px; }
+}
