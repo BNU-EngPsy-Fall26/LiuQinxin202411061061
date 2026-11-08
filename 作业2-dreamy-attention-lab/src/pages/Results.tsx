@@ -16,6 +16,7 @@ import { api, ApiError, type GroupResults, type LiteratureRecord, type PersonalR
 import { getParticipantId } from '@/services/localStore';
 import { VisualSearchResults } from '@/components/results/VisualSearchResults';
 import { MapAlignmentResults } from '@/components/results/MapAlignmentResults';
+import { Hw2UploadStatus } from '@/components/results/Hw2UploadStatus';
 import { formatPercent } from '@/utils/format';
 
 type Tab = 'mine' | 'group' | 'literature';
@@ -156,6 +157,8 @@ export function ResultsPage() {
           不会合并成“真实扫描轨迹”；群体数据只使用正式试次。
         </p>
       </header>
+
+      <Hw2UploadStatus experimentId={experimentId} sessionId={sessionId} />
 
       <div className="result-tabs" role="tablist" aria-label="结果层级">
         {(

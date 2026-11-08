@@ -17,6 +17,7 @@ import {
   hasRecordedConsent,
   readCachedExperimentConfig,
 } from '@/services/localStore';
+import { submitHw2Session } from '@/services/hw2Upload';
 import { useExperimentRuntime } from '@/experiments/shared/useExperimentRuntime';
 import { VisualSearchTask } from '@/experiments/visual-search/VisualSearchTask';
 import { PerceptualOrderingTask } from '@/experiments/perceptual-ordering/PerceptualOrderingTask';
@@ -119,6 +120,9 @@ export function ExperimentRunnerPage() {
       participantId={participantId}
       usingCache={usingCache}
       onComplete={(_summary, sessionId) => {
+        // One automatic course-platform submission per completed session.
+        // The service keeps local data and exposes a manual retry on failure.
+        void submitHw2Session(id, sessionId);
         // Completion goes straight to the detailed results. The old
         // /complete/:sessionId route remains only as a fallback for links that
         // were shared before this flow changed.

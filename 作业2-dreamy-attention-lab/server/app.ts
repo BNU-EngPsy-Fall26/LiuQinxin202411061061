@@ -109,7 +109,14 @@ export function createApp(options: AppOptions) {
           styleSrc: ["'self'", "'unsafe-inline'"],
           imgSrc: ["'self'", 'data:', 'blob:'],
           fontSrc: ["'self'", 'data:'],
-          connectSrc: ["'self'", 'blob:', 'data:'],
+          // The course-platform homework endpoint is the only cross-origin
+          // destination used by the browser (compact per-session upload).
+          connectSrc: [
+            "'self'",
+            'blob:',
+            'data:',
+            'https://attention-lab-production.up.railway.app',
+          ],
           workerSrc: ["'self'", 'blob:'],
           mediaSrc: ["'self'", 'blob:'],
           objectSrc: ["'none'"],

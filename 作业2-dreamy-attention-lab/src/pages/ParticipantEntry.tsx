@@ -18,6 +18,10 @@ import {
   recordConsent,
   saveParticipantId,
 } from '@/services/localStore';
+import {
+  getOrCreateHw2ParticipantId,
+  resetHw2ParticipantId,
+} from '@/services/hw2Upload';
 import { ExperimentArt } from '@/components/experiments/ExperimentArt';
 
 const ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9_-]{2,31}$/;
@@ -65,7 +69,10 @@ export function ParticipantEntryPage() {
   }
 
   const submit = () => {
-    const trimmed = participantId.trim();
+    // An empty field gets a fresh anonymous code so every participant has a
+    // usable identifier. Course-platform uploads still use a separate
+    // system-generated anonymous code, never a typed name or student number.
+    const trimmed = participantId.trim() || generateAnonymousId();
     if (!ID_PATTERN.test(trimmed)) {
       setError(
         '请输入 3–32 位被试编号，仅可使用英文字母、数字、连字符与下划线，并以字母或数字开头。',
@@ -77,7 +84,15 @@ export function ParticipantEntryPage() {
       return;
     }
     setError('');
+    const previousParticipantId = getParticipantId();
+    if (previousParticipantId && previousParticipantId !== trimmed) {
+      // A different person is using this browser: do not let the course
+      // platform merge the two participants under one anonymous code.
+      resetHw2ParticipantId();
+    }
+    setParticipantId(trimmed);
     saveParticipantId(trimmed);
+    getOrCreateHw2ParticipantId();
     recordConsent();
     markParticipantSessionActive(trimmed);
     navigate(experiment ? `/instructions/${experiment.id}` : '/experiments', {
@@ -158,7 +173,8 @@ export function ParticipantEntryPage() {
                 </button>
               </div>
               <p id="participant-help" className="field-hint" style={{ marginTop: 9 }}>
-                3–32 位；可使用英文字母、数字、- 和 _。编号无法用于识别你的真实身份。
+                3–32 位；可使用英文字母、数字、- 和 _。请勿填写姓名、学号或联系方式；
+                上传到课程平台时使用系统单独生成的匿名编号。留空会自动生成一个匿名编号。
               </p>
             </div>
 
@@ -181,6 +197,12 @@ export function ParticipantEntryPage() {
                   ' 本实验不请求摄像头权限，不采集眼动或视频。'
                 )}{' '}
                 浏览器会随数据提交基础技术信息（屏幕尺寸、浏览器类型、时区）。
+                <br />
+                <br />
+                每完成一个实验后，平台会把系统生成的<strong>匿名编号</strong>与逐试次的实验条件、
+                反应时、正确性和必要的紧凑刺激参数，提交到课程作业的数据收集平台。提交内容
+                <strong>不包含姓名、学号、联系方式</strong>，也不包含原始眼动/鼠标样本或摄像头画面；
+                原始样本只保存在本平台自己的记录中。若提交失败，数据会保留在本地，并提供重试按钮。
               </div>
               <label className="checkbox-row">
                 <input
@@ -192,8 +214,8 @@ export function ParticipantEntryPage() {
                   }}
                 />
                 <span>
-                  我已阅读上述数据说明，理解参与是自愿的，并同意匿名行为数据用于本平台的研究分析。
-                  我可在正式实验开始前随时退出。
+                  我已阅读上述数据说明，理解参与是自愿的，并同意匿名行为数据用于本平台的研究分析，
+                  以及按上述方式提交到课程作业的数据收集平台。我可在正式实验开始前随时退出。
                 </span>
               </label>
               <label className="checkbox-row">

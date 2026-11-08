@@ -24,6 +24,7 @@ import {
   getOrCreateActiveSession,
   saveLocalSummary,
 } from '@/services/localStore';
+import { bufferHw2Trial } from '@/services/hw2Upload';
 
 export interface TrialDraft {
   trialId?: string;
@@ -176,6 +177,9 @@ export function useExperimentRuntime({
         gaze_samples: draft.gazeSamples,
         mouse_samples: draft.mouseSamples,
       };
+      // Keep a compact, upload-ready copy for the course platform. Raw gaze
+      // and mouse samples remain in the project's own trial record.
+      bufferHw2Trial(experimentId, sessionIdRef.current, submission);
       await queueTrial(submission);
       return submission;
     },
