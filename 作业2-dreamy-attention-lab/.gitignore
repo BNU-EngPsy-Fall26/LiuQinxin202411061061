@@ -1,0 +1,51 @@
+# Dependencies and build outputs
+node_modules/
+dist/
+dist-server/
+*.tsbuildinfo
+.vite/
+.cache/
+
+# Local runtime data and databases
+data/
+backups/
+exports/
+*.db
+*.db-shm
+*.db-wal
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Credentials and local secrets
+.env
+.env.*
+!.env.example
+.auth-secret
+secrets/
+.railway/config.json
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+id_rsa*
+.ssh/
+
+# Test, audit and generated artifacts
+artifacts/
+test-results/
+playwright-report/
+coverage/
+scripts/reference-*.png
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+*.bak
+*.backup
