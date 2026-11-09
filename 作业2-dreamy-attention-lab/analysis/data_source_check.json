@@ -1,0 +1,22 @@
+{
+  "csv_file": "hw2_TYJKZF_2026-11-09_211916.csv",
+  "json_file": "hw2_TYJKZF_2026-11-09_211952.json",
+  "csv_rows": 750,
+  "json_rows": 750,
+  "csv_sessions": 20,
+  "json_sessions": 20,
+  "trial_ids_match": true,
+  "session_ids_match": true,
+  "duplicate_trial_ids": 0,
+  "json_project": "TYJKZF",
+  "json_title": "dreamy-attention-lab",
+  "local_sqlite": {
+    "sessions": 98,
+    "trials": 1543,
+    "dcl_sessions": 0,
+    "dcl_trials": 0,
+    "non_e2e_sessions": 9,
+    "used_for_analysis": false,
+    "note": "Local DB contains development/E2E sessions; no DCL participants match the platform export."
+  }
+}

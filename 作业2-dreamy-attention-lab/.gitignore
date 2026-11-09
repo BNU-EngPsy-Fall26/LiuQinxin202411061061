@@ -40,6 +40,17 @@ coverage/
 scripts/reference-*.png
 *.log
 
+# Participant data and local analysis environment
+analysis/private-data/
+analysis/.venv/
+
+# Python caches and temporary analysis outputs
+__pycache__/
+*.py[cod]
+.pytest_cache/
+analysis/results/
+*.tmp
+
 # OS / editor
 .DS_Store
 Thumbs.db

@@ -1,0 +1,4 @@
+experiment,sessions,participants,formal_trials,practice_trials_excluded,errors,accuracy,timeouts,invalid_formal,correct_rt_trials,rt_excluded,slow_outlier_trials
+视觉搜索,10,10,350,60,18,0.9485714285714286,0,0,332,0,0
+地图对齐,10,10,300,40,12,0.96,0,0,288,0,3
+合计,20,10,650,100,30,0.9538461538461539,0,0,620,0,3

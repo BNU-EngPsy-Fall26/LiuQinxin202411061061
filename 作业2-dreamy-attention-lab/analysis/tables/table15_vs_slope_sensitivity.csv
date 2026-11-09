@@ -1,0 +1,3 @@
+block,method,n_participants,mean_slope_ms_per_item,sd_slope,t_vs_zero,p_vs_zero
+vs_feature,equal_weight_per_setsize,10,-1.6159503631961265,6.508315406801096,-0.7851622753464169,0.4525308378486815
+vs_conjunction,equal_weight_per_setsize,10,12.309322033898306,7.107725974259866,5.47650461210533,0.0003919369140820219
